@@ -1953,7 +1953,7 @@ dashboard:
 |---------|---------|------|---------|------|
 | A1 | 初始化目录树与最小可运行入口 | [x] | 2026-02-28 | 人工验证通过（0228）；已完成目录骨架、顶层包可导入、prompt占位文件与compileall验收 |
 | A2 | 引入 pytest 并建立测试目录约定 | [x] | 2026-02-28 | 人工验证通过（0228）；已补齐 pytest 配置、smoke imports 测试与 fixtures 占位样例 |
-| A3 | 配置加载与校验（Settings） | [ ] | - |  |
+| A3 | 配置加载与校验（Settings） | [x] | 2026-02-28 | 人工验证完成（0228）；已实现 load_settings/validate_settings、main 启动 fail-fast、logger 占位与配置加载单测 |
 
 #### 阶段 B：Libs 可插拔层
 
