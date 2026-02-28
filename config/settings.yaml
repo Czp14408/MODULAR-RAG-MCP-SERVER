@@ -1,0 +1,14 @@
+llm:
+  provider: placeholder
+embedding:
+  provider: placeholder
+vector_store:
+  provider: placeholder
+retrieval:
+  top_k: 5
+rerank:
+  enabled: false
+evaluation:
+  enabled: false
+observability:
+  log_level: INFO
