@@ -1962,7 +1962,7 @@ dashboard:
 | B1 | LLM 抽象接口与工厂 | [x] | 2026-03-01 | 人工验证通过；已完成 BaseLLM 抽象、LLMFactory 路由与 Fake provider 分流单测 |
 | B2 | Embedding 抽象接口与工厂 | [x] | 2026-03-01 | 人工验收通过（0301）；已完成 BaseEmbedding 抽象、EmbeddingFactory 路由与 Fake provider 单测 |
 | B3 | Splitter 抽象接口与工厂 | [x] | 2026-03-01 | 人工验收完成（0301）；已完成 BaseSplitter 抽象、SplitterFactory 路由与 Fake splitter 单测 |
-| B4 | VectorStore 抽象接口与工厂 | [ ] | - |  |
+| B4 | VectorStore 抽象接口与工厂 | [x] | 2026-03-01 | 人工验收通过（0301）；已完成 BaseVectorStore 契约、VectorStoreFactory 路由与 contract test |
 | B5 | Reranker 抽象接口与工厂（含 None 回退） | [ ] | - |  |
 | B6 | Evaluator 抽象接口与工厂 | [ ] | - |  |
 | B7.1 | OpenAI-Compatible LLM 实现 | [ ] | - |  |
