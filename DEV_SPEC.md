@@ -1973,8 +1973,8 @@ dashboard:
 | B7.6 | ChromaStore 默认实现 | [x] | 2026-03-01 | 人工验收完成（0301）；已实现可持久化 ChromaStore（upsert/query）与 roundtrip 集成测试 |
 | B7.7 | LLM Reranker 实现 | [x] | 2026-03-01 | 人工验收完成（0301）；已实现读取 rerank prompt、结构化 ranked_ids 解析与回退信号 |
 | B7.8 | Cross-Encoder Reranker 实现 | [x] | 2026-03-01 | 人工验收完成（0301）；已实现 Top-M 打分排序、mock scorer 与超时回退信号 |
-| B8 | Vision LLM 抽象接口与工厂集成 | [ ] | - |  |
-| B9 | Azure Vision LLM 实现 | [ ] | - |  |
+| B8 | Vision LLM 抽象接口与工厂集成 | [x] | 2026-03-01 | 自动验收通过；已完成 BaseVisionLLM 抽象、LLMFactory.create_vision_llm 与工厂路由测试 |
+| B9 | Azure Vision LLM 实现 | [x] | 2026-03-01 | 自动验收通过；已完成 AzureVisionLLM（路径/base64输入、压缩扩展点、错误处理）与 mock HTTP 测试 |
 
 #### 阶段 C：Ingestion Pipeline MVP
 
@@ -2067,7 +2067,7 @@ dashboard:
 | 阶段 | 总任务数 | 已完成 | 进度 |
 |------|---------|--------|------|
 | 阶段 A | 3 | 3 | 100% |
-| 阶段 B | 16 | 14 | 87.5% |
+| 阶段 B | 16 | 16 | 100% |
 | 阶段 C | 15 | 0 | 0% |
 | 阶段 D | 7 | 0 | 0% |
 | 阶段 E | 6 | 0 | 0% |
@@ -2075,7 +2075,7 @@ dashboard:
 | 阶段 G | 6 | 0 | 0% |
 | 阶段 H | 5 | 0 | 0% |
 | 阶段 I | 5 | 0 | 0% |
-| **总计** | **68** | **17** | **25%** |
+| **总计** | **68** | **19** | **27.9%** |
 
 
 ---
