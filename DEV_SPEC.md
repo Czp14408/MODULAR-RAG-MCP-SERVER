@@ -1969,10 +1969,10 @@ dashboard:
 | B7.2 | Ollama LLM 实现 | [x] | 2026-03-01 | 人工验收通过（0301）；已完成 Ollama HTTP 调用、连接异常可读错误与 provider 冒烟测试 |
 | B7.3 | OpenAI & Azure Embedding 实现 | [x] | 2026-03-01 | 人工验收通过（0301）；已完成 OpenAI/Azure embedding 实现、空输入与超长输入策略、mock HTTP 测试 |
 | B7.4 | Ollama Embedding 实现 | [x] | 2026-03-01 | 人工验收通过（0301）；已完成 Ollama 批量 embedding、错误处理与 provider 冒烟测试 |
-| B7.5 | Recursive Splitter 默认实现 | [ ] | - |  |
-| B7.6 | ChromaStore 默认实现 | [ ] | - |  |
-| B7.7 | LLM Reranker 实现 | [ ] | - |  |
-| B7.8 | Cross-Encoder Reranker 实现 | [ ] | - |  |
+| B7.5 | Recursive Splitter 默认实现 | [x] | 2026-03-01 | 自动验收通过；已实现 Markdown-aware Recursive Splitter 与专用单测 |
+| B7.6 | ChromaStore 默认实现 | [x] | 2026-03-01 | 自动验收通过；已实现可持久化 ChromaStore（upsert/query）与 roundtrip 集成测试 |
+| B7.7 | LLM Reranker 实现 | [x] | 2026-03-01 | 自动验收通过；已实现读取 rerank prompt、结构化 ranked_ids 解析与回退信号 |
+| B7.8 | Cross-Encoder Reranker 实现 | [x] | 2026-03-01 | 自动验收通过；已实现 Top-M 打分排序、mock scorer 与超时回退信号 |
 | B8 | Vision LLM 抽象接口与工厂集成 | [ ] | - |  |
 | B9 | Azure Vision LLM 实现 | [ ] | - |  |
 

@@ -5,7 +5,14 @@ from typing import Any, Dict, List, Optional
 
 
 class RerankerContractError(ValueError):
-    """重排序输入不满足契约时抛出的错误。"""
+    """重排序输入或输出不满足契约时抛出的错误。"""
+
+
+class RerankerFallbackSignal(RuntimeError):
+    """重排序失败但可回退的信号异常。
+
+    Core 层在接入时可捕获该异常并回退到融合排序结果。
+    """
 
 
 class BaseReranker(ABC):
