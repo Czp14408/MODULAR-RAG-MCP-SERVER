@@ -1,1 +1,13 @@
-"""OpenAI embedding placeholder."""
+"""OpenAI Embedding provider 的最小可运行桩实现。"""
+
+from typing import Any, List, Optional
+
+from src.libs.embedding.base_embedding import BaseEmbedding
+
+
+class OpenAIEmbedding(BaseEmbedding):
+    """用于阶段性验证工厂路由，不依赖真实外部 API。"""
+
+    def embed(self, texts: List[str], trace: Optional[Any] = None) -> List[List[float]]:
+        # 生成稳定向量：长度和字符和用于测试可重复性。
+        return [[float(len(text)), float(sum(ord(ch) for ch in text) % 997)] for text in texts]
