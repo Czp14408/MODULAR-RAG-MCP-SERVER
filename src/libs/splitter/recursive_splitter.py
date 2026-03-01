@@ -44,11 +44,23 @@ class RecursiveSplitter(BaseSplitter):
 def _try_langchain_split(text: str, chunk_size: int, chunk_overlap: int) -> Optional[List[str]]:
     """尝试使用 LangChain 切分；环境缺失依赖时返回 None。"""
     try:
+        # 首选新版本导入路径（langchain-text-splitters 官方推荐）。
         from langchain_text_splitters import RecursiveCharacterTextSplitter
     except Exception:
-        return None
+        try:
+            # 兼容部分版本中按模块拆分的导入路径。
+            from langchain_text_splitters.character import RecursiveCharacterTextSplitter
+        except Exception:
+            try:
+                # 兼容更早期的 langchain 主包导入路径。
+                from langchain.text_splitter import RecursiveCharacterTextSplitter
+            except Exception:
+                return None
 
     splitter = RecursiveCharacterTextSplitter(
+        # 参数选择说明：
+        # 1) chunk_size/chunk_overlap 直接由配置驱动，保证与其它 splitter 行为一致。
+        # 2) separators 从“段落 -> 行 -> 空格 -> 字符”逐级回退，尽量优先在语义边界切分。
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
         separators=["\n\n", "\n", " ", ""],

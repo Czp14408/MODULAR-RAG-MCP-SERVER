@@ -34,6 +34,7 @@ class _FakeHTTPResponse:
         (
             "openai",
             {
+                # 参数选择：使用常见 OpenAI key/model/base_url 组合验证主路径。
                 "api_key": "sk-openai",
                 "model": "text-embedding-3-small",
                 "base_url": "https://api.openai.com/v1",
@@ -43,6 +44,7 @@ class _FakeHTTPResponse:
         (
             "azure",
             {
+                # 参数选择：覆盖 Azure 独有配置（endpoint/deployment/api_version）。
                 "api_key": "azure-key",
                 "endpoint": "https://example.openai.azure.com",
                 "deployment": "text-embedding-ada-002",
@@ -76,6 +78,9 @@ def test_openai_and_azure_embedding_success(
 
     emb = EmbeddingFactory.create({"embedding": {"provider": provider, **cfg}})
     vectors = emb.embed(["alpha", "beta"])
+    print(f"[B7.3] provider={provider} request_url={captured['url']}")
+    print(f"[B7.3] provider={provider} request_body={captured['body']}")
+    print(f"[B7.3] provider={provider} vectors={vectors}")
 
     assert len(vectors) == 2
     assert all(len(v) == 3 for v in vectors)
@@ -93,6 +98,7 @@ def test_empty_input_is_rejected() -> None:
     )
     with pytest.raises(OpenAIEmbeddingError, match="ValidationError"):
         emb.embed([])
+    print("[B7.3] empty input validation branch verified")
 
 
 def test_overlong_input_rejected_or_truncated(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -102,6 +108,7 @@ def test_overlong_input_rejected_or_truncated(monkeypatch: pytest.MonkeyPatch) -
             "embedding": {
                 "provider": "openai",
                 "api_key": "sk-openai",
+                # 参数选择：设置很小阈值，稳定触发超长分支。
                 "max_input_chars": 5,
                 "truncate_input": False,
             }
@@ -109,6 +116,7 @@ def test_overlong_input_rejected_or_truncated(monkeypatch: pytest.MonkeyPatch) -
     )
     with pytest.raises(OpenAIEmbeddingError, match="text too long"):
         emb_error.embed(["123456789"])
+    print("[B7.3] overlong input rejection branch verified")
 
     # 再验证截断策略：开启 truncate_input 后可继续请求。
     captured = {"input": []}
@@ -125,6 +133,7 @@ def test_overlong_input_rejected_or_truncated(monkeypatch: pytest.MonkeyPatch) -
             "embedding": {
                 "provider": "openai",
                 "api_key": "sk-openai",
+                # 参数选择：与上面同阈值，但开启截断，验证可继续请求。
                 "max_input_chars": 5,
                 "truncate_input": True,
             }
@@ -134,3 +143,5 @@ def test_overlong_input_rejected_or_truncated(monkeypatch: pytest.MonkeyPatch) -
     vectors = emb_ok.embed(["123456789"])
     assert vectors == [[0.9, 0.1]]
     assert captured["input"] == ["12345"]
+    print(f"[B7.3] truncated_input={captured['input']}")
+    print(f"[B7.3] truncated_vectors={vectors}")

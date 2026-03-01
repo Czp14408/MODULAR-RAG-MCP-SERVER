@@ -33,6 +33,7 @@ class _FakeHTTPResponse:
 def test_factory_routes_to_ollama_provider() -> None:
     llm = LLMFactory.create({"llm": {"provider": "ollama"}})
     assert isinstance(llm, OllamaLLM)
+    print("[B7.2] factory routed to OllamaLLM")
 
 
 def test_ollama_chat_success_with_mock_http(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -49,13 +50,18 @@ def test_ollama_chat_success_with_mock_http(monkeypatch: pytest.MonkeyPatch) -> 
         {
             "llm": {
                 "provider": "ollama",
+                # 参数选择：用默认本地地址，贴合开发机 Ollama 常见启动方式。
                 "base_url": "http://localhost:11434",
+                # 参数选择：给定具体模型，确保请求体中 model 字段可断言。
                 "model": "llama3.1:8b",
             }
         }
     )
 
     result = llm.chat([Message(role="user", content="hello")])
+    print(f"[B7.2] request_url={captured['url']}")
+    print(f"[B7.2] request_body={captured['body']}")
+    print(f"[B7.2] response_text={result}")
 
     assert result == "ollama-reply"
     assert captured["url"].endswith("/api/chat")
@@ -89,3 +95,4 @@ def test_ollama_connection_error_readable_and_no_sensitive_config(
     assert "provider=ollama" in msg
     assert "error_type=URLError" in msg
     assert "SHOULD_NOT_APPEAR" not in msg
+    print(f"[B7.2] error_message={msg}")

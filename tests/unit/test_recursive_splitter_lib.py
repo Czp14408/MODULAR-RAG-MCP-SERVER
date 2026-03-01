@@ -12,8 +12,10 @@ from src.libs.splitter.splitter_factory import SplitterFactory
 
 
 def test_factory_creates_recursive_splitter() -> None:
+    # 参数选择：chunk_size=120 只是验证工厂可创建，不触发复杂切分边界。
     splitter = SplitterFactory.create({"splitter": {"provider": "recursive", "chunk_size": 120}})
     assert isinstance(splitter, RecursiveSplitter)
+    print("[B7.5] factory routed to RecursiveSplitter")
 
 
 def test_recursive_splitter_handles_markdown_heading_and_code_block() -> None:
@@ -27,8 +29,12 @@ def test_recursive_splitter_handles_markdown_heading_and_code_block() -> None:
         "这是代码块后的补充说明。"
     )
 
+    # 参数选择：小 chunk_size + 轻微 overlap，便于观察 Markdown/代码块是否被破坏。
     splitter = RecursiveSplitter({"splitter": {"chunk_size": 80, "chunk_overlap": 10}})
     chunks = splitter.split_text(markdown)
+    print(f"[B7.5] chunks_count={len(chunks)}")
+    for idx, chunk in enumerate(chunks, start=1):
+        print(f"[B7.5] chunk_{idx}={chunk}")
 
     assert chunks
     joined = "\n\n".join(chunks)

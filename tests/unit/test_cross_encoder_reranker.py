@@ -17,6 +17,7 @@ from src.libs.reranker.reranker_factory import RerankerFactory
 def test_factory_creates_cross_encoder_reranker() -> None:
     reranker = RerankerFactory.create({"rerank": {"provider": "cross_encoder"}})
     assert isinstance(reranker, CrossEncoderReranker)
+    print("[B7.8] factory routed to CrossEncoderReranker")
 
 
 def test_cross_encoder_reranker_scores_top_m_with_mock_scorer() -> None:
@@ -24,6 +25,7 @@ def test_cross_encoder_reranker_scores_top_m_with_mock_scorer() -> None:
         # 通过文本长度构造确定性分数。
         return float(len(text))
 
+    # 参数选择：top_m=2，明确只重排前两个候选，第三个用于验证“尾部保持原顺序”。
     reranker = CrossEncoderReranker({"rerank": {"top_m": 2, "scorer": fake_scorer}})
 
     candidates = [
@@ -33,6 +35,7 @@ def test_cross_encoder_reranker_scores_top_m_with_mock_scorer() -> None:
     ]
 
     ranked = reranker.rerank("q", candidates)
+    print(f"[B7.8] ranked_result={ranked}")
 
     # 仅前 2 个参与打分排序：c1(4) 在 c2(2) 前，c3 保持尾部原顺序。
     assert [item["id"] for item in ranked] == ["c1", "c2", "c3"]
@@ -46,3 +49,4 @@ def test_cross_encoder_reranker_timeout_returns_fallback_signal() -> None:
 
     with pytest.raises(RerankerFallbackSignal, match="TimeoutError"):
         reranker.rerank("q", [{"id": "c1", "text": "x"}, {"id": "c2", "text": "y"}])
+    print("[B7.8] timeout fallback signal branch verified")

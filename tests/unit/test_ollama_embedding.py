@@ -32,6 +32,7 @@ class _FakeHTTPResponse:
 def test_factory_routes_to_ollama_embedding() -> None:
     emb = EmbeddingFactory.create({"embedding": {"provider": "ollama"}})
     assert isinstance(emb, OllamaEmbedding)
+    print("[B7.4] factory routed to OllamaEmbedding")
 
 
 def test_ollama_embedding_batch_success(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -55,13 +56,18 @@ def test_ollama_embedding_batch_success(monkeypatch: pytest.MonkeyPatch) -> None
         {
             "embedding": {
                 "provider": "ollama",
+                # 参数选择：对齐本地 Ollama 默认地址，便于用户复制配置直跑。
                 "base_url": "http://localhost:11434",
+                # 参数选择：使用常见 embedding 模型名，验证请求体 model 字段。
                 "model": "nomic-embed-text",
             }
         }
     )
 
     vectors = emb.embed(["alpha", "beta"])
+    print(f"[B7.4] request_url={captured['url']}")
+    print(f"[B7.4] request_body={captured['body']}")
+    print(f"[B7.4] vectors={vectors}")
     assert len(vectors) == 2
     assert len(vectors[0]) == 3
     assert captured["url"].endswith("/api/embed")
@@ -79,3 +85,4 @@ def test_ollama_embedding_connection_error_readable(monkeypatch: pytest.MonkeyPa
 
     with pytest.raises(OllamaEmbeddingError, match=r"provider=ollama.*error_type=URLError"):
         emb.embed(["hello"])
+    print("[B7.4] URLError wrapping branch verified")

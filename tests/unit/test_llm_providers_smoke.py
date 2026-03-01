@@ -94,6 +94,9 @@ def test_openai_compatible_providers_chat_success(
 
     llm = LLMFactory.create({"llm": {"provider": provider, **llm_config}})
     result = llm.chat([Message(role="user", content="hello")])
+    print(f"[B7.1] provider={provider} request_url={captured['url']}")
+    print(f"[B7.1] provider={provider} request_body={captured['body']}")
+    print(f"[B7.1] provider={provider} response_text={result}")
 
     assert result == f"reply-from-{provider}"
     assert expected_url_part in captured["url"]
@@ -112,6 +115,7 @@ def test_chat_validation_error_contains_provider_and_error_type() -> None:
 
     with pytest.raises(OpenAILLMError, match=r"provider=openai.*error_type=ValidationError"):
         llm.chat([])
+    print("[B7.1] validation error branch verified for provider=openai")
 
 
 def test_http_error_is_wrapped_with_readable_message(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -137,3 +141,4 @@ def test_http_error_is_wrapped_with_readable_message(monkeypatch: pytest.MonkeyP
 
     with pytest.raises(OpenAILLMError, match=r"provider=openai.*error_type=HTTPError"):
         llm.chat([{"role": "user", "content": "ping"}])
+    print("[B7.1] HTTPError wrapping branch verified for provider=openai")

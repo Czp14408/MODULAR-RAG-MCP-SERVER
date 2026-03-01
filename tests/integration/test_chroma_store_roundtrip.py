@@ -11,6 +11,7 @@ from src.libs.vector_store.vector_store_factory import VectorStoreFactory
 
 
 def test_chroma_store_roundtrip_with_persistence_and_filters(tmp_path: Path) -> None:
+    # 参数选择：使用 pytest 临时目录，确保“持久化可验证、测试可清理”。
     persist_dir = tmp_path / "chroma_store"
 
     settings = {
@@ -46,9 +47,12 @@ def test_chroma_store_roundtrip_with_persistence_and_filters(tmp_path: Path) -> 
     )
 
     result = store.query([1.0, 0.0], top_k=2, filters={"collection": "a"})
+    # 参数选择：top_k=2 + collection 过滤，覆盖最常见查询组合。
+    print(f"[B7.6] first_query_result={result}")
     assert [item["id"] for item in result] == ["doc-1", "doc-2"]
 
     # 重新创建 store，验证持久化 roundtrip。
     store_reloaded = VectorStoreFactory.create(settings)
     result_reloaded = store_reloaded.query([1.0, 0.0], top_k=2, filters={"collection": "a"})
+    print(f"[B7.6] reloaded_query_result={result_reloaded}")
     assert [item["id"] for item in result_reloaded] == ["doc-1", "doc-2"]
