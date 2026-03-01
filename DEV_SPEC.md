@@ -1965,7 +1965,7 @@ dashboard:
 | B4 | VectorStore 抽象接口与工厂 | [x] | 2026-03-01 | 人工验收通过（0301）；已完成 BaseVectorStore 契约、VectorStoreFactory 路由与 contract test |
 | B5 | Reranker 抽象接口与工厂（含 None 回退） | [x] | 2026-03-01 | 自动验收通过（免人工）；已完成 BaseReranker、NoneReranker 回退与工厂路由单测 |
 | B6 | Evaluator 抽象接口与工厂 | [x] | 2026-03-01 | 自动验收通过（免人工）；已完成 BaseEvaluator、CustomEvaluator(hit_rate/mrr) 与工厂单测 |
-| B7.1 | OpenAI-Compatible LLM 实现 | [ ] | - |  |
+| B7.1 | OpenAI-Compatible LLM 实现 | [x] | 2026-03-01 | 人工验收通过（0301）；已完成 OpenAI/Azure/DeepSeek provider 实现与 mock HTTP 冒烟测试 |
 | B7.2 | Ollama LLM 实现 | [ ] | - |  |
 | B7.3 | OpenAI & Azure Embedding 实现 | [ ] | - |  |
 | B7.4 | Ollama Embedding 实现 | [ ] | - |  |

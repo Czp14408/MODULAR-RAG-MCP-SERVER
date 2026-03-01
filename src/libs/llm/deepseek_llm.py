@@ -1,14 +1,20 @@
-"""DeepSeek provider stub used by early phases."""
+"""DeepSeek provider（OpenAI-compatible 协议）。"""
 
-from typing import List
-
-from src.libs.llm.base_llm import BaseLLM, Message
+from src.libs.llm.openai_llm import OpenAICompatibleLLM, _read_llm_option
 
 
-class DeepSeekLLM(BaseLLM):
-    """Minimal DeepSeek provider implementation for factory wiring."""
+class DeepSeekLLM(OpenAICompatibleLLM):
+    """DeepSeek 实现。
 
-    def chat(self, messages: List[Message]) -> str:
-        if not messages:
-            return ""
-        return messages[-1].content
+    DeepSeek 对 OpenAI-compatible 协议支持较好，因此只需覆写默认配置。
+    """
+
+    provider_name = "deepseek"
+
+    def _build_chat_endpoint(self) -> str:
+        base_url = str(_read_llm_option(self.settings, "base_url", default="https://api.deepseek.com/v1"))
+        return f"{base_url.rstrip('/')}/chat/completions"
+
+    def _get_model_name(self) -> str:
+        model = _read_llm_option(self.settings, "model", default="deepseek-chat")
+        return str(model)
