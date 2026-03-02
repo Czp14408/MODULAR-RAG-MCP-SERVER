@@ -1,0 +1,8 @@
+%PDF-1.4
+% minimal fixture with image-like scenario for C3 tests
+1 0 obj
+<< /Type /Catalog >>
+endobj
+trailer
+<< /Root 1 0 R >>
+%%EOF
