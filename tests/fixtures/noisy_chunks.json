@@ -1,0 +1,52 @@
+{
+  "cases": [
+    {
+      "name": "typical_noise_scenario",
+      "input": "第 1 页\n\n这是  一个   测试段落。\n\n---\n版权所有 ACME\n",
+      "expect_contains": ["这是 一个 测试段落。"],
+      "expect_not_contains": ["第 1 页", "版权所有", "---"]
+    },
+    {
+      "name": "ocr_errors",
+      "input": "Page 1/5\n\n大语言 模 型 是 一种 统 计 学 习 系统",
+      "expect_contains": ["大语言 模 型 是 一种 统 计 学 习 系统"],
+      "expect_not_contains": ["Page 1/5"]
+    },
+    {
+      "name": "page_header_footer",
+      "input": "第2页\n人工智能系统架构\n第2页",
+      "expect_contains": ["人工智能系统架构"],
+      "expect_not_contains": ["第2页"]
+    },
+    {
+      "name": "excessive_whitespace",
+      "input": "RAG      系统\n\n\n\n可以提升   可控性。",
+      "expect_contains": ["RAG 系统", "可以提升 可控性。"],
+      "expect_not_contains": []
+    },
+    {
+      "name": "format_markers",
+      "input": "<!-- hidden comment -->\n核心内容保留\n***",
+      "expect_contains": ["核心内容保留"],
+      "expect_not_contains": ["hidden comment", "***"]
+    },
+    {
+      "name": "clean_text",
+      "input": "这是干净文本，不应被过度清理。",
+      "expect_contains": ["这是干净文本，不应被过度清理。"],
+      "expect_not_contains": []
+    },
+    {
+      "name": "code_blocks",
+      "input": "说明文字\n```python\nx = 1\nprint(x)\n```\n第 3 页",
+      "expect_contains": ["```python", "print(x)", "说明文字"],
+      "expect_not_contains": ["第 3 页"]
+    },
+    {
+      "name": "mixed_noise",
+      "input": "Page 2\n<!-- note -->\n系统分层设计\n---\n```sql\nselect * from t;\n```",
+      "expect_contains": ["系统分层设计", "```sql", "select * from t;"],
+      "expect_not_contains": ["Page 2", "note", "---"]
+    }
+  ]
+}

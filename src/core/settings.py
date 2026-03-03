@@ -39,6 +39,21 @@ class SplitterSettings:
 
 
 @dataclass(frozen=True)
+class ChunkRefinerSettings:
+    """ChunkRefiner 配置：控制是否启用 LLM 与 prompt 路径。"""
+
+    use_llm: bool = False
+    prompt_path: str = "config/prompts/chunk_refinement.txt"
+
+
+@dataclass(frozen=True)
+class IngestionSettings:
+    """Ingestion 阶段配置聚合。"""
+
+    chunk_refiner: ChunkRefinerSettings = ChunkRefinerSettings()
+
+
+@dataclass(frozen=True)
 class RerankSettings:
     enabled: bool
 
@@ -63,6 +78,7 @@ class Settings:
     evaluation: EvaluationSettings
     observability: ObservabilitySettings
     splitter: SplitterSettings = SplitterSettings()
+    ingestion: IngestionSettings = IngestionSettings()
 
 
 def _require_mapping(data: Dict[str, Any], key: str) -> Dict[str, Any]:
@@ -114,6 +130,12 @@ def load_settings(path: Union[str, Path]) -> Settings:
     splitter_raw = raw.get("splitter", {})
     if not isinstance(splitter_raw, dict):
         raise SettingsError("Missing or invalid field: splitter")
+    ingestion_raw = raw.get("ingestion", {})
+    if not isinstance(ingestion_raw, dict):
+        raise SettingsError("Missing or invalid field: ingestion")
+    chunk_refiner_raw = ingestion_raw.get("chunk_refiner", {})
+    if not isinstance(chunk_refiner_raw, dict):
+        raise SettingsError("Missing or invalid field: ingestion.chunk_refiner")
     rerank_raw = _require_mapping(raw, "rerank")
     evaluation_raw = _require_mapping(raw, "evaluation")
     observability_raw = _require_mapping(raw, "observability")
@@ -139,6 +161,17 @@ def load_settings(path: Union[str, Path]) -> Settings:
         evaluation=EvaluationSettings(enabled=bool(evaluation_raw.get("enabled", False))),
         observability=ObservabilitySettings(
             log_level=_require_str(observability_raw, "log_level", "observability.log_level")
+        ),
+        ingestion=IngestionSettings(
+            chunk_refiner=ChunkRefinerSettings(
+                # 参数选择说明：
+                # 1) 默认 use_llm=False，避免在未配置 API Key 时误触发外部调用。
+                # 2) prompt_path 默认指向约定目录，便于统一管理可替换 Prompt。
+                use_llm=bool(chunk_refiner_raw.get("use_llm", False)),
+                prompt_path=str(
+                    chunk_refiner_raw.get("prompt_path", "config/prompts/chunk_refinement.txt")
+                ),
+            )
         ),
     )
 

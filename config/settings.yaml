@@ -10,6 +10,10 @@ splitter:
   provider: recursive
   chunk_size: 500
   chunk_overlap: 50
+ingestion:
+  chunk_refiner:
+    use_llm: false
+    prompt_path: config/prompts/chunk_refinement.txt
 rerank:
   enabled: false
 evaluation:
