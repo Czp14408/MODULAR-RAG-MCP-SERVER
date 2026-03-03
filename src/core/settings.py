@@ -32,6 +32,13 @@ class RetrievalSettings:
 
 
 @dataclass(frozen=True)
+class SplitterSettings:
+    provider: str = "recursive"
+    chunk_size: int = 500
+    chunk_overlap: int = 50
+
+
+@dataclass(frozen=True)
 class RerankSettings:
     enabled: bool
 
@@ -55,6 +62,7 @@ class Settings:
     rerank: RerankSettings
     evaluation: EvaluationSettings
     observability: ObservabilitySettings
+    splitter: SplitterSettings = SplitterSettings()
 
 
 def _require_mapping(data: Dict[str, Any], key: str) -> Dict[str, Any]:
@@ -103,6 +111,9 @@ def load_settings(path: Union[str, Path]) -> Settings:
     embedding_raw = _require_mapping(raw, "embedding")
     vector_store_raw = _require_mapping(raw, "vector_store")
     retrieval_raw = _require_mapping(raw, "retrieval")
+    splitter_raw = raw.get("splitter", {})
+    if not isinstance(splitter_raw, dict):
+        raise SettingsError("Missing or invalid field: splitter")
     rerank_raw = _require_mapping(raw, "rerank")
     evaluation_raw = _require_mapping(raw, "evaluation")
     observability_raw = _require_mapping(raw, "observability")
@@ -116,6 +127,14 @@ def load_settings(path: Union[str, Path]) -> Settings:
             provider=_require_str(vector_store_raw, "provider", "vector_store.provider")
         ),
         retrieval=RetrievalSettings(top_k=int(retrieval_raw.get("top_k", 5))),
+        splitter=SplitterSettings(
+            # 参数选择说明：
+            # provider 默认 recursive，作为通用文本切分默认策略。
+            provider=str(splitter_raw.get("provider", "recursive")),
+            # chunk_size/chunk_overlap 给出稳妥默认值，便于 C4 直接可用。
+            chunk_size=int(splitter_raw.get("chunk_size", 500)),
+            chunk_overlap=int(splitter_raw.get("chunk_overlap", 50)),
+        ),
         rerank=RerankSettings(enabled=bool(rerank_raw.get("enabled", False))),
         evaluation=EvaluationSettings(enabled=bool(evaluation_raw.get("enabled", False))),
         observability=ObservabilitySettings(
