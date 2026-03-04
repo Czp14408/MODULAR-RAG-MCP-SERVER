@@ -30,8 +30,8 @@ def _chunk(text: str) -> Chunk:
 @pytest.mark.integration
 def test_chunk_refiner_real_llm_call_when_api_key_available() -> None:
     api_key = os.getenv("OPENAI_API_KEY", "").strip()
-    if not api_key:
-        pytest.skip("OPENAI_API_KEY not set; skipping real LLM integration test")
+    # 严格遵循 C5 规范：真实 LLM 验收必须执行，无 Key 视为验收失败。
+    assert api_key, "OPENAI_API_KEY is required for C5 real LLM integration test"
 
     settings = {
         "llm": {
@@ -50,7 +50,9 @@ def test_chunk_refiner_real_llm_call_when_api_key_available() -> None:
     print(f"[C5-INT] metadata={out.metadata}")
 
     assert out.text.strip()
-    assert out.metadata["refined_by"] in {"llm", "rule"}
+    # 严格验收：真实 LLM 调用必须成功，不允许降级为 rule。
+    assert out.metadata["refined_by"] == "llm"
+    assert "refine_fallback_reason" not in out.metadata
 
 
 @pytest.mark.integration
@@ -66,4 +68,3 @@ def test_chunk_refiner_invalid_provider_falls_back_to_rule() -> None:
     assert out.metadata["refined_by"] == "rule"
     assert "refine_fallback_reason" in out.metadata
     assert "核心文本保留" in out.text
-
