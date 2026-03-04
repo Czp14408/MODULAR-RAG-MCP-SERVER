@@ -1985,11 +1985,11 @@ dashboard:
 | C3 | Loader 抽象基类与 PDF Loader | [x] | 2026-03-02 | 自动验收通过；已实现 BaseLoader/PdfLoader、图片占位符写入与 metadata.images 契约测试 |
 | C4 | Splitter 集成（调用 Libs） | [x] | 2026-03-03 | 自动验收通过；已完成 DocumentChunker 适配层（ID/metadata/source_ref）与 FakeSplitter 隔离单测 |
 | C5 | Transform 基类 + ChunkRefiner | [x] | 2026-03-04 | 严格验收通过；已完成 rule-based 去噪、可选 LLM 增强、失败降级、TraceContext 占位，并通过真实 LLM 集成测试（modelverse endpoint + DeepSeek-V3.2） |
-| C6 | MetadataEnricher | [ ] | - |  |
-| C7 | ImageCaptioner | [ ] | - |  |
-| C8 | DenseEncoder | [ ] | - |  |
-| C9 | SparseEncoder | [ ] | - |  |
-| C10 | BatchProcessor | [ ] | - |  |
+| C6 | MetadataEnricher | [x] | 2026-03-04 | 自动验收通过；已完成规则增强+可选LLM增强+降级回退，并补齐 metadata 契约单测 |
+| C7 | ImageCaptioner | [x] | 2026-03-04 | 自动验收通过；已完成 Vision 调用路径、禁用/异常降级与 has_unprocessed_images 标记 |
+| C8 | DenseEncoder | [x] | 2026-03-04 | 自动验收通过；已完成 BaseEmbedding 批量编码适配与向量数量/维度契约单测 |
+| C9 | SparseEncoder | [x] | 2026-03-04 | 自动验收通过；已完成 term-weight 稀疏向量输出与空文本行为单测 |
+| C10 | BatchProcessor | [x] | 2026-03-04 | 自动验收通过；已完成批处理编排（batch=2时5条分3批）与顺序稳定性单测 |
 | C11 | BM25Indexer（倒排索引+IDF计算） | [ ] | - |  |
 | C12 | VectorUpserter（幂等upsert） | [ ] | - |  |
 | C13 | ImageStorage（图片存储+SQLite索引） | [ ] | - |  |
@@ -2068,14 +2068,14 @@ dashboard:
 |------|---------|--------|------|
 | 阶段 A | 3 | 3 | 100% |
 | 阶段 B | 16 | 16 | 100% |
-| 阶段 C | 15 | 5 | 33.3% |
+| 阶段 C | 15 | 10 | 66.7% |
 | 阶段 D | 7 | 0 | 0% |
 | 阶段 E | 6 | 0 | 0% |
 | 阶段 F | 5 | 0 | 0% |
 | 阶段 G | 6 | 0 | 0% |
 | 阶段 H | 5 | 0 | 0% |
 | 阶段 I | 5 | 0 | 0% |
-| **总计** | **68** | **24** | **35.3%** |
+| **总计** | **68** | **29** | **42.6%** |
 
 
 ---
