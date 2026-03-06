@@ -1,9 +1,9 @@
 llm:
   provider: placeholder
 embedding:
-  provider: placeholder
+  provider: hash
 vector_store:
-  provider: placeholder
+  provider: chroma
 retrieval:
   top_k: 5
 splitter:

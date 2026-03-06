@@ -4,6 +4,7 @@ from typing import Any, Dict, Type
 
 from src.libs.embedding.azure_embedding import AzureEmbedding
 from src.libs.embedding.base_embedding import BaseEmbedding
+from src.libs.embedding.hash_embedding import HashEmbedding
 from src.libs.embedding.ollama_embedding import OllamaEmbedding
 from src.libs.embedding.openai_embedding import OpenAIEmbedding
 
@@ -19,6 +20,7 @@ class EmbeddingFactory:
         "openai": OpenAIEmbedding,
         "azure": AzureEmbedding,
         "ollama": OllamaEmbedding,
+        "hash": HashEmbedding,
     }
 
     @classmethod

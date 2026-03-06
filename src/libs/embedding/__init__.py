@@ -3,6 +3,7 @@
 from src.libs.embedding.azure_embedding import AzureEmbedding
 from src.libs.embedding.base_embedding import BaseEmbedding
 from src.libs.embedding.embedding_factory import EmbeddingFactory, EmbeddingFactoryError
+from src.libs.embedding.hash_embedding import HashEmbedding
 from src.libs.embedding.ollama_embedding import OllamaEmbedding, OllamaEmbeddingError
 from src.libs.embedding.openai_embedding import (
     OpenAICompatibleEmbedding,
@@ -18,6 +19,7 @@ __all__ = [
     "OpenAIEmbedding",
     "OpenAIEmbeddingError",
     "AzureEmbedding",
+    "HashEmbedding",
     "OllamaEmbedding",
     "OllamaEmbeddingError",
 ]
