@@ -2000,9 +2000,9 @@ dashboard:
 
 | 任务编号 | 任务名称 | 状态 | 完成日期 | 备注 |
 |---------|---------|------|---------|------|
-| D1 | QueryProcessor（关键词提取 + filters） | [ ] | - |  |
-| D2 | DenseRetriever（调用 VectorStore.query） | [ ] | - |  |
-| D3 | SparseRetriever（BM25 查询） | [ ] | - |  |
+| D1 | QueryProcessor（关键词提取 + filters） | [x] | 2026-03-06 | 自动验收通过；已完成规则关键词提取、ProcessedQuery.keywords 结构与单测 |
+| D2 | DenseRetriever（调用 VectorStore.query） | [x] | 2026-03-06 | 自动验收通过；已完成 query embedding + vector store 编排、RetrievalResult 规范化与单测 |
+| D3 | SparseRetriever（BM25 查询） | [x] | 2026-03-06 | 自动验收通过；已完成 BM25 查询、VectorStore.get_by_ids 补全文本元数据与单测 |
 | D4 | RRF Fusion | [ ] | - |  |
 | D5 | HybridSearch 编排 | [ ] | - |  |
 | D6 | Reranker（Core 层编排 + Fallback） | [ ] | - |  |
@@ -2069,13 +2069,13 @@ dashboard:
 | 阶段 A | 3 | 3 | 100% |
 | 阶段 B | 16 | 16 | 100% |
 | 阶段 C | 15 | 15 | 100% |
-| 阶段 D | 7 | 0 | 0% |
+| 阶段 D | 7 | 3 | 42.9% |
 | 阶段 E | 6 | 0 | 0% |
 | 阶段 F | 5 | 0 | 0% |
 | 阶段 G | 6 | 0 | 0% |
 | 阶段 H | 5 | 0 | 0% |
 | 阶段 I | 5 | 0 | 0% |
-| **总计** | **68** | **34** | **50.0%** |
+| **总计** | **68** | **37** | **54.4%** |
 
 
 ---

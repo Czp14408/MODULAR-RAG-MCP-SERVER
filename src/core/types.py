@@ -182,6 +182,7 @@ class ProcessedQuery:
     """查询预处理后的结构化对象（预留给 D1）。"""
 
     query: str
+    keywords: List[str] = field(default_factory=list)
     filters: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -189,7 +190,15 @@ class ProcessedQuery:
 class RetrievalResult:
     """检索结果对象（预留给 D2~D6）。"""
 
-    id: str
+    chunk_id: str
     score: float
     text: str
     metadata: Metadata
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "chunk_id": self.chunk_id,
+            "score": self.score,
+            "text": self.text,
+            "metadata": dict(self.metadata),
+        }

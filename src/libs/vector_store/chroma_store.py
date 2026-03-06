@@ -71,6 +71,21 @@ class ChromaStore(BaseVectorStore):
         candidates.sort(key=lambda item: item["score"], reverse=True)
         return candidates[:top_k]
 
+    def get_by_ids(self, ids: List[str], trace: Optional[Any] = None) -> List[Dict[str, Any]]:
+        result: List[Dict[str, Any]] = []
+        for chunk_id in ids:
+            record = self._records.get(chunk_id)
+            if record is None:
+                continue
+            result.append(
+                {
+                    "id": record["id"],
+                    "metadata": record.get("metadata", {}),
+                    "text": record.get("text", ""),
+                }
+            )
+        return result
+
     def _resolve_store_file(self) -> Path:
         """解析本地持久化文件路径。"""
         persist_dir = _read_vector_store_option(self.settings, "persist_directory", "data/db/chroma")

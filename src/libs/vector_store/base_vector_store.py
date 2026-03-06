@@ -29,6 +29,10 @@ class BaseVectorStore(ABC):
     ) -> List[Dict[str, Any]]:
         """按向量检索并返回 top-k 结果。"""
 
+    @abstractmethod
+    def get_by_ids(self, ids: List[str], trace: Optional[Any] = None) -> List[Dict[str, Any]]:
+        """根据 chunk id 批量获取记录。"""
+
     @staticmethod
     def validate_vector(vector: List[float], field: str = "vector") -> None:
         """校验向量 shape。"""
