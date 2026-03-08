@@ -47,6 +47,7 @@ class HybridSearch:
                 elapsed_ms=(perf_counter() - query_started) * 1000,
                 method="keyword_extraction",
                 provider=self.query_processor.__class__.__name__,
+                query=processed.query,
                 keyword_count=len(processed.keywords),
                 filters=dict(merged_filters),
             )

@@ -11,6 +11,7 @@ requires-python = ">=3.10"
 dependencies = [
     "PyYAML>=6.0",
     "langchain-text-splitters>=0.3.0",
+    "streamlit>=1.50.0",
 ]
 
 [project.optional-dependencies]

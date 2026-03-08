@@ -7,7 +7,7 @@ import sqlite3
 from abc import ABC, abstractmethod
 from pathlib import Path
 from threading import Lock
-from typing import Optional
+from typing import Dict, List, Optional
 
 
 class FileIntegrityChecker(ABC):
@@ -110,6 +110,53 @@ class SQLiteIntegrityChecker(FileIntegrityChecker):
             error_msg=error_msg,
             chunk_count=None,
         )
+
+    def remove_record(
+        self,
+        file_hash: Optional[str] = None,
+        file_path: Optional[str] = None,
+    ) -> int:
+        """按 file_hash 或 file_path 删除完整性记录。"""
+        if not file_hash and not file_path:
+            raise ValueError("file_hash or file_path is required")
+
+        with self._write_lock:
+            with self._connect() as conn:
+                if file_hash:
+                    cursor = conn.execute(
+                        "DELETE FROM ingestion_history WHERE file_hash = ?",
+                        (file_hash,),
+                    )
+                else:
+                    cursor = conn.execute(
+                        "DELETE FROM ingestion_history WHERE file_path = ?",
+                        (file_path,),
+                    )
+                conn.commit()
+        return cursor.rowcount
+
+    def list_processed(self) -> List[Dict[str, object]]:
+        """列出完整性记录，供 Dashboard/DocumentManager 使用。"""
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT file_hash, file_path, file_size, status, processed_at, error_msg, chunk_count
+                FROM ingestion_history
+                ORDER BY processed_at DESC
+                """
+            ).fetchall()
+        return [
+            {
+                "file_hash": row[0],
+                "file_path": row[1],
+                "file_size": row[2],
+                "status": row[3],
+                "processed_at": row[4],
+                "error_msg": row[5],
+                "chunk_count": row[6],
+            }
+            for row in rows
+        ]
 
     def _upsert_status(
         self,

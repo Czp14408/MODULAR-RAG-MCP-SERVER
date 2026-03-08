@@ -86,6 +86,73 @@ class ChromaStore(BaseVectorStore):
             )
         return result
 
+    def get_by_metadata(
+        self,
+        filters: Dict[str, Any],
+        trace: Optional[Any] = None,
+    ) -> List[Dict[str, Any]]:
+        if not isinstance(filters, dict):
+            raise VectorStoreContractError("Invalid filters: must be dict")
+        rows: List[Dict[str, Any]] = []
+        for record in self._records.values():
+            if _match_filters(record.get("metadata", {}), filters):
+                rows.append(
+                    {
+                        "id": record["id"],
+                        "metadata": record.get("metadata", {}),
+                        "text": record.get("text", ""),
+                        "vector": record.get("vector", []),
+                    }
+                )
+        rows.sort(key=lambda item: item["id"])
+        return rows
+
+    def delete_by_metadata(
+        self,
+        filters: Dict[str, Any],
+        trace: Optional[Any] = None,
+    ) -> int:
+        if not isinstance(filters, dict):
+            raise VectorStoreContractError("Invalid filters: must be dict")
+        matched_ids = [
+            chunk_id
+            for chunk_id, record in self._records.items()
+            if _match_filters(record.get("metadata", {}), filters)
+        ]
+        for chunk_id in matched_ids:
+            self._records.pop(chunk_id, None)
+        if matched_ids:
+            self._persist_to_disk()
+        return len(matched_ids)
+
+    def get_collection_stats(
+        self,
+        collection: Optional[str] = None,
+        trace: Optional[Any] = None,
+    ) -> Dict[str, Any]:
+        records = list(self._records.values())
+        if collection is not None:
+            records = [
+                record
+                for record in records
+                if record.get("metadata", {}).get("collection") == collection
+            ]
+        document_ids = {
+            str(record.get("metadata", {}).get("document_id", ""))
+            for record in records
+            if str(record.get("metadata", {}).get("document_id", "")).strip()
+        }
+        collections = {
+            str(record.get("metadata", {}).get("collection", ""))
+            for record in records
+            if str(record.get("metadata", {}).get("collection", "")).strip()
+        }
+        return {
+            "chunk_count": len(records),
+            "document_count": len(document_ids),
+            "collection_count": len(collections),
+        }
+
     def _resolve_store_file(self) -> Path:
         """解析本地持久化文件路径。"""
         persist_dir = _read_vector_store_option(self.settings, "persist_directory", "data/db/chroma")

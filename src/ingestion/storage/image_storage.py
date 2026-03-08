@@ -89,6 +89,62 @@ class ImageStorage:
             for row in rows
         ]
 
+    def list_images(
+        self,
+        collection: Optional[str] = None,
+        doc_hash: Optional[str] = None,
+    ) -> List[Dict[str, object]]:
+        """按 collection/doc_hash 可选过滤列出图片。"""
+        sql = """
+            SELECT image_id, file_path, collection, doc_hash, page_num
+            FROM image_index
+            WHERE 1=1
+        """
+        params: List[object] = []
+        if collection is not None:
+            sql += " AND collection = ?"
+            params.append(collection)
+        if doc_hash is not None:
+            sql += " AND doc_hash = ?"
+            params.append(doc_hash)
+        sql += " ORDER BY image_id"
+
+        with self._connect() as conn:
+            rows = conn.execute(sql, params).fetchall()
+        return [
+            {
+                "image_id": row[0],
+                "file_path": row[1],
+                "collection": row[2],
+                "doc_hash": row[3],
+                "page_num": row[4],
+            }
+            for row in rows
+        ]
+
+    def delete_by_doc_hash(
+        self,
+        doc_hash: str,
+        collection: Optional[str] = None,
+    ) -> int:
+        """删除某文档关联图片及其索引。"""
+        images = self.list_images(collection=collection, doc_hash=doc_hash)
+        for image in images:
+            file_path = Path(str(image["file_path"]))
+            if file_path.exists():
+                file_path.unlink()
+
+        with self._connect() as conn:
+            if collection is None:
+                cursor = conn.execute("DELETE FROM image_index WHERE doc_hash = ?", (doc_hash,))
+            else:
+                cursor = conn.execute(
+                    "DELETE FROM image_index WHERE doc_hash = ? AND collection = ?",
+                    (doc_hash, collection),
+                )
+            conn.commit()
+        return cursor.rowcount
+
     def _init_db(self) -> None:
         with self._connect() as conn:
             conn.execute("PRAGMA journal_mode=WAL;")

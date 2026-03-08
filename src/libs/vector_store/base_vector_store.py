@@ -33,6 +33,30 @@ class BaseVectorStore(ABC):
     def get_by_ids(self, ids: List[str], trace: Optional[Any] = None) -> List[Dict[str, Any]]:
         """根据 chunk id 批量获取记录。"""
 
+    @abstractmethod
+    def get_by_metadata(
+        self,
+        filters: Dict[str, Any],
+        trace: Optional[Any] = None,
+    ) -> List[Dict[str, Any]]:
+        """按 metadata 等值过滤获取记录。"""
+
+    @abstractmethod
+    def delete_by_metadata(
+        self,
+        filters: Dict[str, Any],
+        trace: Optional[Any] = None,
+    ) -> int:
+        """按 metadata 等值过滤删除记录。"""
+
+    @abstractmethod
+    def get_collection_stats(
+        self,
+        collection: Optional[str] = None,
+        trace: Optional[Any] = None,
+    ) -> Dict[str, Any]:
+        """返回集合级统计信息。"""
+
     @staticmethod
     def validate_vector(vector: List[float], field: str = "vector") -> None:
         """校验向量 shape。"""

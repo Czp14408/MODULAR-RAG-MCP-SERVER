@@ -100,6 +100,41 @@ class BM25Indexer:
             )
         return results
 
+    def remove_document(
+        self,
+        source_path: Optional[str] = None,
+        document_id: Optional[str] = None,
+    ) -> int:
+        """按 source_path 或 document_id 删除文档并重建索引。"""
+        existing = self.load()
+        docs = existing.get("_documents", {})
+        remaining: List[ChunkRecord] = []
+        removed = 0
+
+        for chunk_id, payload in docs.items():
+            metadata = payload.get("metadata", {})
+            if not isinstance(metadata, dict):
+                metadata = {}
+            matched = False
+            if source_path and metadata.get("source_path") == source_path:
+                matched = True
+            if document_id and metadata.get("document_id") == document_id:
+                matched = True
+            if matched:
+                removed += 1
+                continue
+            remaining.append(
+                ChunkRecord(
+                    id=chunk_id,
+                    text=str(payload.get("text", "")),
+                    metadata=dict(metadata),
+                    sparse_vector=dict(payload.get("sparse_vector", {})),
+                )
+            )
+
+        self.build(remaining)
+        return removed
+
     def _build_index(self, records: List[ChunkRecord]) -> Dict[str, dict]:
         doc_count = len(records)
         doc_lengths: Dict[str, int] = {}
