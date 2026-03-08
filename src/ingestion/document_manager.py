@@ -55,13 +55,11 @@ class DocumentManager:
         return sorted(grouped.values(), key=lambda item: (str(item["collection"]), str(item["source_path"])))
 
     def get_document_detail(self, doc_id: str) -> Dict[str, Any]:
-        rows = self.chroma_store.get_by_metadata({"document_id": doc_id})
-        if not rows:
-            rows = [
-                row
-                for row in self.chroma_store.get_by_metadata({})
-                if str(row.get("metadata", {}).get("source_path", "")).endswith(doc_id)
-            ]
+        # 兼容三类文档标识：
+        # 1) 新数据：metadata.document_id
+        # 2) 半结构数据：metadata.source_path
+        # 3) 历史/脏数据：直接退化为向量记录本身的 row.id
+        rows = self._find_document_rows(doc_id)
         if not rows:
             raise ValueError(f"document not found: {doc_id}")
 
@@ -82,6 +80,35 @@ class DocumentManager:
             "chunks": rows,
             "images": images,
         }
+
+    def _find_document_rows(self, doc_id: str) -> List[Dict[str, Any]]:
+        rows = self.chroma_store.get_by_metadata({"document_id": doc_id})
+        if rows:
+            return rows
+
+        all_rows = self.chroma_store.get_by_metadata({})
+
+        exact_source_matches = [
+            row for row in all_rows if str(row.get("metadata", {}).get("source_path", "")) == doc_id
+        ]
+        if exact_source_matches:
+            return exact_source_matches
+
+        suffix_source_matches = [
+            row
+            for row in all_rows
+            if str(row.get("metadata", {}).get("source_path", "")).endswith(doc_id)
+        ]
+        if suffix_source_matches:
+            return suffix_source_matches
+
+        # 历史记录可能完全没有 document_id/source_path，此时 Data Browser
+        # 至少应该能展示这条 chunk，而不是直接崩溃。
+        id_matches = [row for row in all_rows if str(row.get("id", "")) == doc_id]
+        if id_matches:
+            return id_matches
+
+        return []
 
     def delete_document(self, source_path: str, collection: Optional[str] = None) -> Dict[str, Any]:
         filters = {"source_path": source_path}

@@ -82,3 +82,31 @@ def test_document_manager_lists_and_deletes_documents(tmp_path: Path) -> None:
     print(f"[G2] delete_result={result}")
     assert result["deleted_chunks"] == 2
     assert manager.list_documents(collection="demo") == []
+
+
+def test_document_manager_can_open_legacy_row_without_document_id(tmp_path: Path) -> None:
+    manager = _build_manager(tmp_path)
+    manager.chroma_store.upsert(
+        [
+            {
+                "id": "chunk-legacy-1",
+                "vector": [0.2, 0.8],
+                "text": "legacy only row",
+                "metadata": {
+                    "collection": "demo",
+                    "title": "legacy-title",
+                },
+            }
+        ]
+    )
+
+    docs = manager.list_documents(collection="demo")
+    print(f"[G2-legacy] docs={docs}")
+    legacy = next(item for item in docs if item["doc_id"] == "chunk-legacy-1")
+    detail = manager.get_document_detail("chunk-legacy-1")
+    print(f"[G2-legacy] detail={detail}")
+
+    assert legacy["title"] == "legacy-title"
+    assert detail["doc_id"] == "chunk-legacy-1"
+    assert len(detail["chunks"]) == 1
+    assert detail["chunks"][0]["id"] == "chunk-legacy-1"

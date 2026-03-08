@@ -176,6 +176,22 @@ export OPENAI_MODEL="deepseek-ai/DeepSeek-V3.2"
 6. `Evaluation Panel`
    - 运行 golden set 评估并查看指标
 
+页面示意：
+
+```text
++------------------- Dashboard -------------------+
+| Overview | Data Browser | Ingestion Manager    |
+| Ingestion Traces | Query Traces | Evaluation    |
++-------------------------------------------------+
+| 左侧: 配置/过滤项                               |
+| 右侧: 表格、trace 阶段耗时、评估指标、图片信息   |
++-------------------------------------------------+
+```
+
+更系统的项目拆解、选型对比与面试表达见：
+
+- `/Users/chenglun/Desktop/workspace/MODULAR-RAG-MCP-SERVER/docs/INTERVIEW_NOTES.md`
+
 ## 已 ingest 数据放在哪里
 
 默认数据目录：
@@ -223,6 +239,17 @@ export OPENAI_MODEL="deepseek-ai/DeepSeek-V3.2"
 .venv/bin/pytest -q -s tests/e2e/test_mcp_client.py
 .venv/bin/pytest -q -s tests/e2e/test_dashboard_smoke.py
 .venv/bin/pytest -q -s tests/e2e/test_recall.py
+```
+
+### 全量测试
+
+如果要严格跑完整 `pytest -q`，并包含真实 LLM 集成用例，需要提供这几个环境变量：
+
+```bash
+export OPENAI_BASE_URL="https://api.modelverse.cn/v1"
+export OPENAI_API_KEY="your-api-key"
+export OPENAI_MODEL="deepseek-ai/DeepSeek-V3.2"
+.venv/bin/pytest -q
 ```
 
 ## 常见问题
