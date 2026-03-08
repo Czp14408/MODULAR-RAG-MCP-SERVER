@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import warnings
 from typing import Any, List, Optional
 
 from src.libs.splitter.base_splitter import BaseSplitter
@@ -26,13 +27,20 @@ class RecursiveSplitter(BaseSplitter):
         chunk_size = max(chunk_size, 1)
         chunk_overlap = max(0, min(chunk_overlap, chunk_size - 1))
 
-        langchain_chunks = _try_langchain_split(
-            text=text,
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-        )
-        if langchain_chunks is not None:
-            return [chunk for chunk in langchain_chunks if chunk.strip()]
+        # 参数选择说明：
+        # 默认优先使用本地 fallback splitter，保证：
+        # 1) 离线环境稳定；
+        # 2) 不因第三方 HTTP 栈导入产生无关告警；
+        # 3) 手动验收结果更可控。
+        use_langchain = bool(_read_setting(self.settings, "use_langchain", False))
+        if use_langchain:
+            langchain_chunks = _try_langchain_split(
+                text=text,
+                chunk_size=chunk_size,
+                chunk_overlap=chunk_overlap,
+            )
+            if langchain_chunks is not None:
+                return [chunk for chunk in langchain_chunks if chunk.strip()]
 
         return _fallback_markdown_aware_split(
             text=text,
@@ -43,6 +51,15 @@ class RecursiveSplitter(BaseSplitter):
 
 def _try_langchain_split(text: str, chunk_size: int, chunk_overlap: int) -> Optional[List[str]]:
     """尝试使用 LangChain 切分；环境缺失依赖时返回 None。"""
+    # 某些 macOS + Python 3.9 环境下，langchain_text_splitters 间接导入 requests/urllib3，
+    # 会打印与当前任务无关的 LibreSSL 警告。这里仅抑制该已知噪声，不影响真实错误暴露。
+    try:
+        from urllib3.exceptions import NotOpenSSLWarning  # type: ignore
+
+        warnings.filterwarnings("ignore", category=NotOpenSSLWarning)
+    except Exception:
+        pass
+
     try:
         # 首选新版本导入路径（langchain-text-splitters 官方推荐）。
         from langchain_text_splitters import RecursiveCharacterTextSplitter

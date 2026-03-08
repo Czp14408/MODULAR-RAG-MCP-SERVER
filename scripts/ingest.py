@@ -6,6 +6,14 @@ import argparse
 from pathlib import Path
 import sys
 from typing import Optional
+import warnings
+
+try:
+    from urllib3.exceptions import NotOpenSSLWarning  # type: ignore
+
+    warnings.filterwarnings("ignore", category=NotOpenSSLWarning)
+except Exception:
+    pass
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
