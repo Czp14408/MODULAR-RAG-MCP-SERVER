@@ -1,6 +1,7 @@
 """Evaluator 工厂。"""
 
-from typing import Any, Dict, Type
+from importlib import import_module
+from typing import Any, Dict, Type, Union
 
 from src.libs.evaluator.base_evaluator import BaseEvaluator
 from src.libs.evaluator.custom_evaluator import CustomEvaluator
@@ -13,8 +14,10 @@ class EvaluatorFactoryError(ValueError):
 class EvaluatorFactory:
     """根据配置创建评估器。"""
 
-    _providers: Dict[str, Type[BaseEvaluator]] = {
+    _providers: Dict[str, Union[Type[BaseEvaluator], str]] = {
         "custom": CustomEvaluator,
+        "ragas": "src.observability.evaluation.ragas_evaluator:RagasEvaluator",
+        "composite": "src.observability.evaluation.composite_evaluator:CompositeEvaluator",
     }
 
     @classmethod
@@ -32,6 +35,10 @@ class EvaluatorFactory:
             raise EvaluatorFactoryError(
                 f"Unsupported evaluation.provider: {provider}. Supported providers: {supported}"
             )
+        if isinstance(provider_cls, str):
+            module_name, class_name = provider_cls.split(":", 1)
+            provider_cls = getattr(import_module(module_name), class_name)
+            cls._providers[provider.lower()] = provider_cls
         return provider_cls(settings)
 
     @staticmethod

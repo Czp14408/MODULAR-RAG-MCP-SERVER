@@ -9,6 +9,7 @@ from typing import Any, Dict
 import streamlit as st
 
 from src.core.settings import load_settings
+from src.core.query_engine.hybrid_search import HybridSearch
 from src.core.trace import TraceCollector
 from src.ingestion.document_manager import DocumentManager
 from src.ingestion.pipeline import IngestionPipeline
@@ -50,9 +51,11 @@ def build_context() -> Dict[str, Any]:
     )
     integrity = SQLiteIntegrityChecker(str(data_root / "db" / "ingestion_history.db"))
     document_manager = DocumentManager(chroma, bm25, image_storage, integrity)
+    hybrid_search = HybridSearch(settings)
 
     return {
         "settings": settings,
+        "hybrid_search": hybrid_search,
         "config_service": ConfigService(settings),
         "data_service": DataService(document_manager),
         "trace_service": TraceService(trace_log_path=trace_path),
@@ -69,6 +72,8 @@ def build_context() -> Dict[str, Any]:
 def main() -> None:
     st.set_page_config(page_title="Modular RAG Dashboard", layout="wide")
     context = build_context()
+    st.session_state["_dashboard_settings"] = context["settings"]
+    st.session_state["_dashboard_hybrid_search"] = context["hybrid_search"]
     navigation = st.navigation(
         [
             st.Page(lambda: overview.render(context), title="Overview", url_path="overview"),

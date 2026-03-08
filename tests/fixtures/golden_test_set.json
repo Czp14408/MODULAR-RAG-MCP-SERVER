@@ -1,0 +1,20 @@
+{
+  "test_cases": [
+    {
+      "query": "分布式 分片",
+      "expected_sources": ["test_chunking_multimodal.pdf"],
+      "filters": {
+        "collection": "demo"
+      },
+      "top_k": 3
+    },
+    {
+      "query": "大语言模型",
+      "expected_sources": ["test_chunking_text.pdf"],
+      "filters": {
+        "collection": "demo"
+      },
+      "top_k": 3
+    }
+  ]
+}
