@@ -2003,10 +2003,10 @@ dashboard:
 | D1 | QueryProcessor（关键词提取 + filters） | [x] | 2026-03-06 | 自动验收通过；已完成规则关键词提取、ProcessedQuery.keywords 结构与单测 |
 | D2 | DenseRetriever（调用 VectorStore.query） | [x] | 2026-03-06 | 自动验收通过；已完成 query embedding + vector store 编排、RetrievalResult 规范化与单测 |
 | D3 | SparseRetriever（BM25 查询） | [x] | 2026-03-06 | 自动验收通过；已完成 BM25 查询、VectorStore.get_by_ids 补全文本元数据与单测 |
-| D4 | RRF Fusion | [ ] | - |  |
-| D5 | HybridSearch 编排 | [ ] | - |  |
-| D6 | Reranker（Core 层编排 + Fallback） | [ ] | - |  |
-| D7 | 脚本入口 query.py（查询可用） | [ ] | - |  |
+| D4 | RRF Fusion | [x] | 2026-03-08 | 自动验收通过；已完成 RRF 融合实现、可配置 k 参数与 deterministic 单测 |
+| D5 | HybridSearch 编排 | [x] | 2026-03-08 | 自动验收通过；已完成 QueryProcessor + Dense/Sparse + Fusion 编排、过滤支持与单路降级集成测试 |
+| D6 | Reranker（Core 层编排 + Fallback） | [x] | 2026-03-08 | 自动验收通过；已完成 Core 层 rerank 包装、fallback 标记与异常回退单测 |
+| D7 | 脚本入口 query.py（查询可用） | [x] | 2026-03-08 | 自动验收通过；已完成 CLI 查询入口、verbose 输出与 query e2e 测试 |
 
 #### 阶段 E：MCP Server 层与 Tools
 
@@ -2069,13 +2069,13 @@ dashboard:
 | 阶段 A | 3 | 3 | 100% |
 | 阶段 B | 16 | 16 | 100% |
 | 阶段 C | 15 | 15 | 100% |
-| 阶段 D | 7 | 3 | 42.9% |
+| 阶段 D | 7 | 7 | 100% |
 | 阶段 E | 6 | 0 | 0% |
 | 阶段 F | 5 | 0 | 0% |
 | 阶段 G | 6 | 0 | 0% |
 | 阶段 H | 5 | 0 | 0% |
 | 阶段 I | 5 | 0 | 0% |
-| **总计** | **68** | **37** | **54.4%** |
+| **总计** | **68** | **41** | **60.3%** |
 
 
 ---

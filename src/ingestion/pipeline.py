@@ -86,6 +86,9 @@ class IngestionPipeline:
 
         try:
             document = self.loader.load(str(pdf_path))
+            if isinstance(document.metadata, dict):
+                document.metadata.setdefault("collection", collection)
+                document.metadata.setdefault("doc_type", pdf_path.suffix.lstrip(".").lower() or "file")
             self._emit_progress(on_progress, "load", 1, 1)
 
             chunks = self.chunker.split_document(document)
