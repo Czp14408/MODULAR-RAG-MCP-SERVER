@@ -58,6 +58,7 @@ class DocumentChunker:
     def _inherit_metadata(self, document: Document, chunk_index: int) -> Dict[str, Any]:
         """继承文档元数据并注入 chunk_index。"""
         metadata = deepcopy(document.metadata)
+        metadata.setdefault("document_id", document.id)
         metadata["chunk_index"] = chunk_index
         return metadata
 

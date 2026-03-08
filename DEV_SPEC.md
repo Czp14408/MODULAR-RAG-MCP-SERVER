@@ -2012,12 +2012,12 @@ dashboard:
 
 | 任务编号 | 任务名称 | 状态 | 完成日期 | 备注 |
 |---------|---------|------|---------|------|
-| E1 | MCP Server 入口与 Stdio 约束 | [ ] | - |  |
-| E2 | Protocol Handler 协议解析与能力协商 | [ ] | - |  |
-| E3 | query_knowledge_hub Tool | [ ] | - |  |
-| E4 | list_collections Tool | [ ] | - |  |
-| E5 | get_document_summary Tool | [ ] | - |  |
-| E6 | 多模态返回组装（Text + Image） | [ ] | - |  |
+| E1 | MCP Server 入口与 Stdio 约束 | [x] | 2026-03-08 | 自动验收通过；已完成 stdio server 入口、stdout 仅输出 JSON-RPC、stderr 日志隔离与子进程 initialize 集成测试 |
+| E2 | Protocol Handler 协议解析与能力协商 | [x] | 2026-03-08 | 自动验收通过；已完成 initialize/tools/list/tools/call 路由、JSON-RPC 错误码映射与未知 tool -32601/内部异常 -32603 单测 |
+| E3 | query_knowledge_hub Tool | [x] | 2026-03-08 | 自动验收通过；已完成 HybridSearch + 可选 Reranker 编排、Markdown 引用输出与 citations 结构化返回 |
+| E4 | list_collections Tool | [x] | 2026-03-08 | 自动验收通过；已完成 documents_root 枚举与 vector store metadata 回退路径单测 |
+| E5 | get_document_summary Tool | [x] | 2026-03-08 | 自动验收通过；已完成按 document_id/source_path 回溯 title/summary/tags，并对不存在 doc_id 返回规范错误 |
+| E6 | 多模态返回组装（Text + Image） | [x] | 2026-03-08 | 自动验收通过；已完成命中图片 base64 组装、mimeType 判定与 MCP image content 集成测试 |
 
 #### 阶段 F：Trace 基础设施与打点
 
@@ -2070,12 +2070,12 @@ dashboard:
 | 阶段 B | 16 | 16 | 100% |
 | 阶段 C | 15 | 15 | 100% |
 | 阶段 D | 7 | 7 | 100% |
-| 阶段 E | 6 | 0 | 0% |
+| 阶段 E | 6 | 6 | 100% |
 | 阶段 F | 5 | 0 | 0% |
 | 阶段 G | 6 | 0 | 0% |
 | 阶段 H | 5 | 0 | 0% |
 | 阶段 I | 5 | 0 | 0% |
-| **总计** | **68** | **41** | **60.3%** |
+| **总计** | **68** | **47** | **69.1%** |
 
 
 ---
