@@ -7,6 +7,7 @@ from typing import Any, Dict
 from src.core.query_engine.hybrid_search import HybridSearch
 from src.core.query_engine.reranker import QueryReranker
 from src.core.response.response_builder import ResponseBuilder
+from src.core.trace import TraceCollector, TraceContext
 
 
 def query_knowledge_hub(arguments: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, object]:
@@ -21,11 +22,15 @@ def query_knowledge_hub(arguments: Dict[str, Any], context: Dict[str, Any]) -> D
 
     settings = context["settings"]
     hybrid = context.get("hybrid_search") or HybridSearch(settings)
-    results = hybrid.search(query=query, top_k=top_k, filters=filters)
+    trace = TraceContext(trace_type="query")
+    results = hybrid.search(query=query, top_k=top_k, filters=filters, trace=trace)
 
     if use_rerank:
         reranker = context.get("query_reranker") or QueryReranker(settings)
-        results = reranker.rerank(query, results)
+        results = reranker.rerank(query, results, trace=trace)
 
     builder = context.get("response_builder") or ResponseBuilder()
-    return builder.build(results, query=query)
+    payload = builder.build(results, query=query)
+    TraceCollector().collect(trace)
+    payload.setdefault("structuredContent", {})["trace_id"] = trace.trace_id
+    return payload

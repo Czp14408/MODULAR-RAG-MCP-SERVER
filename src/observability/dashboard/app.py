@@ -74,16 +74,31 @@ def main() -> None:
     context = build_context()
     st.session_state["_dashboard_settings"] = context["settings"]
     st.session_state["_dashboard_hybrid_search"] = context["hybrid_search"]
-    navigation = st.navigation(
-        [
-            st.Page(lambda: overview.render(context), title="Overview", url_path="overview"),
-            st.Page(lambda: data_browser.render(context), title="Data Browser", url_path="data-browser"),
-            st.Page(lambda: ingestion_manager.render(context), title="Ingestion Manager", url_path="ingestion-manager"),
-            st.Page(lambda: ingestion_traces.render(context), title="Ingestion Traces", url_path="ingestion-traces"),
-            st.Page(lambda: query_traces.render(context), title="Query Traces", url_path="query-traces"),
-            st.Page(evaluation_panel.render, title="Evaluation Panel", url_path="evaluation-panel"),
-        ]
-    )
+    page_renderers = {
+        "Overview": lambda: overview.render(context),
+        "Data Browser": lambda: data_browser.render(context),
+        "Ingestion Manager": lambda: ingestion_manager.render(context),
+        "Ingestion Traces": lambda: ingestion_traces.render(context),
+        "Query Traces": lambda: query_traces.render(context),
+        "Evaluation Panel": evaluation_panel.render,
+    }
+    pages = [
+        st.Page(page_renderers["Overview"], title="Overview", url_path="overview"),
+        st.Page(page_renderers["Data Browser"], title="Data Browser", url_path="data-browser"),
+        st.Page(page_renderers["Ingestion Manager"], title="Ingestion Manager", url_path="ingestion-manager"),
+        st.Page(page_renderers["Ingestion Traces"], title="Ingestion Traces", url_path="ingestion-traces"),
+        st.Page(page_renderers["Query Traces"], title="Query Traces", url_path="query-traces"),
+        st.Page(page_renderers["Evaluation Panel"], title="Evaluation Panel", url_path="evaluation-panel"),
+    ]
+    test_page = os.environ.get("DASHBOARD_TEST_PAGE", "").strip()
+    if test_page:
+        renderer = page_renderers.get(test_page)
+        if renderer is not None:
+            renderer()
+            return
+        raise ValueError(f"unknown dashboard test page: {test_page}")
+
+    navigation = st.navigation(pages)
     navigation.run()
 
 

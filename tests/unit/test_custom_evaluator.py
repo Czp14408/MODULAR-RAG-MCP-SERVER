@@ -71,3 +71,9 @@ def test_input_contract_validation() -> None:
     evaluator = CustomEvaluator(settings={})
     with pytest.raises(EvaluatorContractError, match="retrieved_ids"):
         evaluator.evaluate(query="q", retrieved_ids=[1], golden_ids=["a"])  # type: ignore[list-item]
+
+
+def test_custom_evaluator_handles_empty_retrieved_ids() -> None:
+    evaluator = CustomEvaluator(settings={})
+    metrics = evaluator.evaluate(query="q", retrieved_ids=[], golden_ids=["a"])
+    assert metrics == {"hit_rate": 0.0, "mrr": 0.0}

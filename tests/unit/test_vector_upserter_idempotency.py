@@ -26,6 +26,18 @@ class FakeVectorStore(BaseVectorStore):
     def query(self, vector: List[float], top_k: int, filters=None, trace=None) -> List[Dict[str, Any]]:
         return []
 
+    def get_by_ids(self, ids: List[str], trace=None) -> List[Dict[str, Any]]:
+        return []
+
+    def get_by_metadata(self, filters: Dict[str, Any], trace=None) -> List[Dict[str, Any]]:
+        return []
+
+    def delete_by_metadata(self, filters: Dict[str, Any], trace=None) -> int:
+        return 0
+
+    def get_collection_stats(self, collection=None, trace=None) -> Dict[str, Any]:
+        return {"collection": collection, "count": len(self.records)}
+
 
 def _record(text: str, chunk_index: int) -> ChunkRecord:
     return ChunkRecord(

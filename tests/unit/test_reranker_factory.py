@@ -52,3 +52,8 @@ def test_factory_routes_to_registered_fake_provider() -> None:
 def test_factory_raises_on_unknown_provider() -> None:
     with pytest.raises(RerankerFactoryError, match="Unsupported rerank.provider"):
         RerankerFactory.create({"rerank": {"provider": "unknown"}})
+
+
+def test_factory_raises_when_enabled_without_provider() -> None:
+    with pytest.raises(RerankerFactoryError, match="rerank.provider"):
+        RerankerFactory.create({"rerank": {"enabled": True}})

@@ -67,3 +67,31 @@ def test_query_rejects_invalid_vector_and_top_k() -> None:
 def test_factory_raises_on_unknown_provider() -> None:
     with pytest.raises(VectorStoreFactoryError, match="Unsupported vector_store.provider"):
         VectorStoreFactory.create({"vector_store": {"provider": "unknown"}})
+
+
+def test_delete_by_metadata_and_stats_contract() -> None:
+    store = VectorStoreFactory.create({"vector_store": {"provider": "chroma"}})
+    store.upsert(
+        [
+            {
+                "id": "chunk-delete-1",
+                "vector": [1.0, 0.0],
+                "metadata": {"collection": "demo", "document_id": "doc-a"},
+                "text": "alpha",
+            },
+            {
+                "id": "chunk-delete-2",
+                "vector": [0.0, 1.0],
+                "metadata": {"collection": "demo", "document_id": "doc-a"},
+                "text": "beta",
+            },
+        ]
+    )
+
+    stats = store.get_collection_stats("demo")
+    deleted = store.delete_by_metadata({"document_id": "doc-a"})
+    remaining = store.get_by_metadata({"document_id": "doc-a"})
+
+    assert stats["chunk_count"] >= 2
+    assert deleted >= 2
+    assert remaining == []

@@ -2054,11 +2054,11 @@ dashboard:
 
 | 任务编号 | 任务名称 | 状态 | 完成日期 | 备注 |
 |---------|---------|------|---------|------|
-| I1 | E2E：MCP Client 侧调用模拟 | [ ] | - | |
-| I2 | E2E：Dashboard 冒烟测试 | [ ] | - | |
-| I3 | 完善 README（运行说明 + MCP + Dashboard） | [ ] | - | |
-| I4 | 清理接口一致性（契约测试补齐） | [ ] | - | |
-| I5 | 全链路 E2E 验收 | [ ] | - | |
+| I1 | E2E：MCP Client 侧调用模拟 | [x] | 2026-03-08 | 自动验收通过；已完成 MCP 子进程端到端测试，验证 initialize/tools/list/tools/call 与 citations 返回 |
+| I2 | E2E：Dashboard 冒烟测试 | [x] | 2026-03-08 | 自动验收通过；已完成 6 个页面的 Streamlit AppTest 冒烟验证 |
+| I3 | 完善 README（运行说明 + MCP + Dashboard） | [x] | 2026-03-08 | 已补齐快速开始、配置说明、MCP 配置示例、Dashboard 指南、测试命令与 FAQ |
+| I4 | 清理接口一致性（契约测试补齐） | [x] | 2026-03-08 | 自动验收通过；已补齐 VectorStore/Reranker/Evaluator 契约边界测试，并通过全量 pytest |
+| I5 | 全链路 E2E 验收 | [x] | 2026-03-08 | 自动验收通过；已验证 ingest/query via MCP/dashboard/evaluate 全链路，并通过全量 pytest |
 
 ---
 
@@ -2074,8 +2074,8 @@ dashboard:
 | 阶段 F | 5 | 5 | 100% |
 | 阶段 G | 6 | 6 | 100% |
 | 阶段 H | 5 | 5 | 100% |
-| 阶段 I | 5 | 0 | 0% |
-| **总计** | **68** | **63** | **92.6%** |
+| 阶段 I | 5 | 5 | 100% |
+| **总计** | **68** | **68** | **100%** |
 
 
 ---

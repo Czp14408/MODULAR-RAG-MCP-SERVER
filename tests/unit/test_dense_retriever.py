@@ -47,6 +47,15 @@ class FakeVectorStore(BaseVectorStore):
     def get_by_ids(self, ids: List[str], trace=None) -> List[Dict[str, Any]]:
         return []
 
+    def get_by_metadata(self, filters: Dict[str, Any], trace=None) -> List[Dict[str, Any]]:
+        return []
+
+    def delete_by_metadata(self, filters: Dict[str, Any], trace=None) -> int:
+        return 0
+
+    def get_collection_stats(self, collection=None, trace=None) -> Dict[str, Any]:
+        return {"collection": collection, "count": 0}
+
 
 def test_dense_retriever_calls_embedding_and_vector_store() -> None:
     embedding = FakeEmbedding(settings={})

@@ -54,6 +54,15 @@ class FakeVectorStore(BaseVectorStore):
             },
         ]
 
+    def get_by_metadata(self, filters: Dict[str, Any], trace=None) -> List[Dict[str, Any]]:
+        return []
+
+    def delete_by_metadata(self, filters: Dict[str, Any], trace=None) -> int:
+        return 0
+
+    def get_collection_stats(self, collection=None, trace=None) -> Dict[str, Any]:
+        return {"collection": collection, "count": 0}
+
 
 def test_sparse_retriever_merges_scores_with_text_and_metadata() -> None:
     bm25 = FakeBM25Indexer()
