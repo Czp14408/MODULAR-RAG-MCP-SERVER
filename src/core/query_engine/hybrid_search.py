@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from time import perf_counter
 from typing import Any, Dict, List, Optional
 
 from src.core.query_engine.dense_retriever import DenseRetriever
@@ -37,8 +38,18 @@ class HybridSearch:
         filters: Optional[Dict[str, Any]] = None,
         trace: Optional[TraceContext] = None,
     ) -> List[RetrievalResult]:
+        query_started = perf_counter()
         processed = self.query_processor.process(query, filters=filters)
         merged_filters = dict(processed.filters)
+        if trace is not None:
+            trace.record_stage(
+                "query_processing",
+                elapsed_ms=(perf_counter() - query_started) * 1000,
+                method="keyword_extraction",
+                provider=self.query_processor.__class__.__name__,
+                keyword_count=len(processed.keywords),
+                filters=dict(merged_filters),
+            )
 
         dense_results: List[RetrievalResult] = []
         sparse_results: List[RetrievalResult] = []
@@ -64,6 +75,7 @@ class HybridSearch:
         except Exception as exc:  # noqa: BLE001
             sparse_error = str(exc)
 
+        fusion_started = perf_counter()
         if dense_results and sparse_results:
             fused = self.fusion.fuse(dense_results, sparse_results, top_k=top_k)
         elif dense_results:
@@ -84,10 +96,12 @@ class HybridSearch:
         if trace is not None:
             trace.record_stage(
                 "fusion",
-                elapsed_ms=0.0,
+                elapsed_ms=(perf_counter() - fusion_started) * 1000,
                 dense_count=len(dense_results),
                 sparse_count=len(sparse_results),
                 fused_count=len(filtered),
+                method="rrf",
+                provider=self.fusion.__class__.__name__,
             )
         return filtered
 

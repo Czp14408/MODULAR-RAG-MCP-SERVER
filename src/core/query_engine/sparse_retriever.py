@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from time import perf_counter
 from typing import Any, List, Optional
 
 from src.core.trace.trace_context import TraceContext
@@ -30,6 +31,7 @@ class SparseRetriever:
         top_k: int,
         trace: Optional[TraceContext] = None,
     ) -> List[RetrievalResult]:
+        started = perf_counter()
         query_text = " ".join(keywords).strip()
         ranked = self.bm25_indexer.query(query_text, top_k=top_k)
         rows = self.vector_store.get_by_ids([str(item["id"]) for item in ranked], trace=trace)
@@ -51,8 +53,10 @@ class SparseRetriever:
         if trace is not None:
             trace.record_stage(
                 "sparse_retrieval",
-                elapsed_ms=0.0,
+                elapsed_ms=(perf_counter() - started) * 1000,
                 top_k=top_k,
                 result_count=len(results),
+                method="bm25",
+                provider=self.bm25_indexer.__class__.__name__,
             )
         return results

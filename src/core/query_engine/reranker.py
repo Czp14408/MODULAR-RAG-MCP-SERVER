@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from time import perf_counter
 from typing import Any, List, Optional
 
 from src.core.trace.trace_context import TraceContext
@@ -25,6 +26,7 @@ class QueryReranker:
         candidates: List[RetrievalResult],
         trace: Optional[TraceContext] = None,
     ) -> List[RetrievalResult]:
+        started = perf_counter()
         self.last_fallback = False
         self.last_error = None
         if not candidates:
@@ -79,8 +81,10 @@ class QueryReranker:
         if trace is not None:
             trace.record_stage(
                 "rerank",
-                elapsed_ms=0.0,
+                elapsed_ms=(perf_counter() - started) * 1000,
                 candidate_count=len(candidates),
                 fallback=self.last_fallback,
+                method="rerank",
+                provider=self.reranker.__class__.__name__,
             )
         return results

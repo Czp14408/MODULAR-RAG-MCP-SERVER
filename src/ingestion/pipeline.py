@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from time import perf_counter
 from typing import Any, Callable, Dict, List, Optional
 
+from src.core.trace.trace_collector import TraceCollector
 from src.core.trace.trace_context import TraceContext
 from src.core.types import Chunk, ChunkRecord
 from src.ingestion.chunking.document_chunker import DocumentChunker
@@ -43,6 +45,7 @@ class IngestionPipeline:
         bm25_indexer: Optional[BM25Indexer] = None,
         vector_upserter: Optional[VectorUpserter] = None,
         image_storage: Optional[ImageStorage] = None,
+        trace_collector: Optional[TraceCollector] = None,
     ) -> None:
         self.settings = settings
         self.integrity_checker = integrity_checker or SQLiteIntegrityChecker()
@@ -61,6 +64,7 @@ class IngestionPipeline:
         self.bm25_indexer = bm25_indexer or BM25Indexer()
         self.vector_upserter = vector_upserter or VectorUpserter(settings)
         self.image_storage = image_storage or ImageStorage()
+        self.trace_collector = trace_collector or TraceCollector()
 
     def run(
         self,
@@ -77,29 +81,70 @@ class IngestionPipeline:
         file_hash = self.integrity_checker.compute_sha256(str(pdf_path))
         if not force and self.integrity_checker.should_skip(file_hash):
             self._emit_progress(on_progress, "integrity", 1, 1)
+            trace.record_stage(
+                "integrity",
+                elapsed_ms=0.0,
+                method="sha256_skip_check",
+                provider=self.integrity_checker.__class__.__name__,
+                skipped=True,
+            )
+            self.trace_collector.collect(trace)
             return {
                 "status": "skipped",
                 "reason": "already_ingested",
                 "file_hash": file_hash,
                 "path": str(pdf_path),
+                "trace": trace.to_dict(),
             }
 
         try:
+            load_started = perf_counter()
             document = self.loader.load(str(pdf_path))
             if isinstance(document.metadata, dict):
                 document.metadata.setdefault("collection", collection)
                 document.metadata.setdefault("doc_type", pdf_path.suffix.lstrip(".").lower() or "file")
+            trace.record_stage(
+                "load",
+                elapsed_ms=(perf_counter() - load_started) * 1000,
+                method="pdf_load",
+                provider=self.loader.__class__.__name__,
+                source_path=str(pdf_path),
+            )
             self._emit_progress(on_progress, "load", 1, 1)
 
+            split_started = perf_counter()
             chunks = self.chunker.split_document(document)
+            trace.record_stage(
+                "split",
+                elapsed_ms=(perf_counter() - split_started) * 1000,
+                method="split_document",
+                provider=self.chunker.__class__.__name__,
+                chunk_count=len(chunks),
+            )
             self._emit_progress(on_progress, "split", len(chunks), len(chunks) or 1)
 
+            transform_started = perf_counter()
             transformed = self._transform_chunks(chunks, trace=trace)
+            trace.record_stage(
+                "transform",
+                elapsed_ms=(perf_counter() - transform_started) * 1000,
+                method="chunk_refine+metadata_enrich+image_caption",
+                provider="IngestionTransforms",
+                chunk_count=len(transformed),
+            )
             self._emit_progress(
                 on_progress, "transform", len(transformed), len(transformed) or 1
             )
 
+            embed_started = perf_counter()
             records = self.batch_processor.process(transformed, trace=trace)
+            trace.record_stage(
+                "embed",
+                elapsed_ms=(perf_counter() - embed_started) * 1000,
+                method="batch_encode",
+                provider=self.batch_processor.__class__.__name__,
+                record_count=len(records),
+            )
             self._emit_progress(on_progress, "embed", len(records), len(records) or 1)
 
             sparse_only = [
@@ -113,8 +158,17 @@ class IngestionPipeline:
             ]
             self.bm25_indexer.update(sparse_only)
 
+            upsert_started = perf_counter()
             upserted_records = self.vector_upserter.upsert(records, trace=trace)
             stored_images = self._store_images(document, collection=collection)
+            trace.record_stage(
+                "upsert",
+                elapsed_ms=(perf_counter() - upsert_started) * 1000,
+                method="vector_upsert+bm25_update+image_store",
+                provider=self.vector_upserter.__class__.__name__,
+                record_count=len(upserted_records),
+                stored_images=stored_images,
+            )
             self._emit_progress(
                 on_progress, "upsert", len(upserted_records), len(upserted_records) or 1
             )
@@ -126,6 +180,7 @@ class IngestionPipeline:
                 chunk_count=len(upserted_records),
             )
 
+            self.trace_collector.collect(trace)
             return {
                 "status": "success",
                 "file_hash": file_hash,
@@ -135,6 +190,14 @@ class IngestionPipeline:
                 "trace": trace.to_dict(),
             }
         except Exception as exc:  # noqa: BLE001
+            trace.record_stage(
+                "error",
+                elapsed_ms=0.0,
+                method="exception",
+                provider=self.__class__.__name__,
+                error=str(exc),
+            )
+            self.trace_collector.collect(trace)
             self.integrity_checker.mark_failed(
                 file_hash=file_hash,
                 error_msg=str(exc),

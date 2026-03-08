@@ -22,6 +22,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.core.query_engine.hybrid_search import HybridSearch
 from src.core.query_engine.reranker import QueryReranker
 from src.core.settings import load_settings
+from src.core.trace import TraceCollector, TraceContext
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -41,15 +42,19 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     filters = {"collection": args.collection} if args.collection else None
     hybrid = HybridSearch(settings)
-    results = hybrid.search(query=args.query, top_k=args.top_k, filters=filters)
+    trace = TraceContext(trace_type="query")
+    results = hybrid.search(query=args.query, top_k=args.top_k, filters=filters, trace=trace)
 
     if not results:
+        TraceCollector().collect(trace)
         print("未找到相关文档，请先运行 ingest.py 摄取数据。")
         return 0
 
     if not args.no_rerank:
         reranker = QueryReranker(settings)
-        results = reranker.rerank(args.query, results)
+        results = reranker.rerank(args.query, results, trace=trace)
+
+    TraceCollector().collect(trace)
 
     if args.verbose:
         _print_verbose(hybrid)

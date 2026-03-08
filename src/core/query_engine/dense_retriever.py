@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from time import perf_counter
 from typing import Any, Dict, List, Optional
 
 from src.core.trace.trace_context import TraceContext
@@ -32,6 +33,7 @@ class DenseRetriever:
         filters: Optional[Dict[str, Any]] = None,
         trace: Optional[TraceContext] = None,
     ) -> List[RetrievalResult]:
+        started = perf_counter()
         vector = self.embedding_client.embed([query], trace=trace)[0]
         rows = self.vector_store.query(vector, top_k=top_k, filters=filters, trace=trace)
         results = [
@@ -47,8 +49,10 @@ class DenseRetriever:
         if trace is not None:
             trace.record_stage(
                 "dense_retrieval",
-                elapsed_ms=0.0,
+                elapsed_ms=(perf_counter() - started) * 1000,
                 top_k=top_k,
                 result_count=len(results),
+                method="dense_vector_search",
+                provider=self.embedding_client.__class__.__name__,
             )
         return results

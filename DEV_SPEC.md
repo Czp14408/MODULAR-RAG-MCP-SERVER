@@ -2023,11 +2023,11 @@ dashboard:
 
 | 任务编号 | 任务名称 | 状态 | 完成日期 | 备注 |
 |---------|---------|------|---------|------|
-| F1 | TraceContext 增强（finish + 耗时统计 + trace_type） | [ ] | - |  |
-| F2 | 结构化日志 logger（JSON Lines） | [ ] | - |  |
-| F3 | 在 Query 链路打点 | [ ] | - |  |
-| F4 | 在 Ingestion 链路打点 | [ ] | - |  |
-| F5 | Pipeline 进度回调 (on_progress) | [ ] | - |  |
+| F1 | TraceContext 增强（finish + 耗时统计 + trace_type） | [x] | 2026-03-08 | 自动验收通过；已完成 trace_type/started_at/finished_at/total_elapsed_ms、finish 幂等与 JSON 可序列化单测 |
+| F2 | 结构化日志 logger（JSON Lines） | [x] | 2026-03-08 | 自动验收通过；已完成 JSONFormatter、get_trace_logger/write_trace 与 traces.jsonl 单行合法 JSON 测试 |
+| F3 | 在 Query 链路打点 | [x] | 2026-03-08 | 自动验收通过；已完成 query_processing/dense_retrieval/sparse_retrieval/fusion/rerank 阶段打点，并在 query.py 落盘 trace |
+| F4 | 在 Ingestion 链路打点 | [x] | 2026-03-08 | 自动验收通过；已完成 load/split/transform/embed/upsert 阶段打点、trace_collector 落盘与 ingestion 集成测试 |
+| F5 | Pipeline 进度回调 (on_progress) | [x] | 2026-03-08 | 自动验收通过；已完成 on_progress 阶段回调、空回调兼容与进度顺序单测 |
 
 #### 阶段 G：可视化管理平台 Dashboard
 
@@ -2071,11 +2071,11 @@ dashboard:
 | 阶段 C | 15 | 15 | 100% |
 | 阶段 D | 7 | 7 | 100% |
 | 阶段 E | 6 | 6 | 100% |
-| 阶段 F | 5 | 0 | 0% |
+| 阶段 F | 5 | 5 | 100% |
 | 阶段 G | 6 | 0 | 0% |
 | 阶段 H | 5 | 0 | 0% |
 | 阶段 I | 5 | 0 | 0% |
-| **总计** | **68** | **47** | **69.1%** |
+| **总计** | **68** | **52** | **76.5%** |
 
 
 ---

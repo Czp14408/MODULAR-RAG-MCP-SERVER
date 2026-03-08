@@ -15,6 +15,8 @@ from src.core.query_engine.dense_retriever import DenseRetriever
 from src.core.query_engine.fusion import Fusion
 from src.core.query_engine.hybrid_search import HybridSearch
 from src.core.query_engine.query_processor import QueryProcessor
+from src.core.query_engine.reranker import QueryReranker
+from src.core.trace import TraceContext
 from src.core.query_engine.sparse_retriever import SparseRetriever
 from src.ingestion.pipeline import IngestionPipeline
 from src.ingestion.storage.bm25_indexer import BM25Indexer
@@ -63,13 +65,28 @@ def test_hybrid_search_returns_top_k_and_supports_filters(tmp_path: Path) -> Non
         ),
         fusion=Fusion(),
     )
+    trace = TraceContext(trace_type="query")
 
-    results = search.search("分布式 分片", top_k=3, filters={"collection": "demo"})
+    results = search.search("分布式 分片", top_k=3, filters={"collection": "demo"}, trace=trace)
+    results = QueryReranker(settings).rerank("分布式 分片", results, trace=trace)
+    trace_dict = trace.to_dict()
     print(f"[D5] filtered_results={[item.to_dict() for item in results]}")
+    print(f"[F3] query_trace={trace_dict}")
 
     assert results
     assert len(results) <= 3
     assert all(item.metadata.get("collection") == "demo" for item in results)
+    assert trace_dict["trace_type"] == "query"
+    stage_names = [item["stage"] for item in trace_dict["stages"]]
+    assert stage_names[:5] == [
+        "query_processing",
+        "dense_retrieval",
+        "sparse_retrieval",
+        "fusion",
+        "rerank",
+    ]
+    assert all("elapsed_ms" in item for item in trace_dict["stages"][:5])
+    assert all("method" in item for item in trace_dict["stages"][:5])
 
 
 @pytest.mark.integration
